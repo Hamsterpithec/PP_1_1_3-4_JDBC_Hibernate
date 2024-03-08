@@ -14,7 +14,7 @@ public class UserDaoJDBCImpl implements UserDao {
     public UserDaoJDBCImpl() {
     }
 
-    public void createUsersTable() throws SQLException {
+    public void createUsersTable() {
         String sql = "CREATE TABLE IF NOT EXISTS usertable (" +
                 "  id BIGINT PRIMARY KEY NOT NULL AUTO_INCREMENT ," +
                 "  name VARCHAR(100) NOT NULL," +
@@ -39,29 +39,41 @@ public class UserDaoJDBCImpl implements UserDao {
 
     }
 
-    public void saveUser(String name, String lastName, byte age) {
-        String sql = "INSERT INTO usertable (name, lastname, age)" + "VALUES (?,?,?)";
-        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-            preparedStatement.setString(1, name);
-            preparedStatement.setString(2, lastName);
-            preparedStatement.setByte(3, age);
-            preparedStatement.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+    public void saveUser(String name, String lastName, byte age) throws SQLException {
 
+        try (connection) {
+            connection.setAutoCommit(false);
+            String sql = "INSERT INTO usertable (name, lastname, age)" + "VALUES (?,?,?)";
+            try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+                preparedStatement.setString(1, name);
+                preparedStatement.setString(2, lastName);
+                preparedStatement.setByte(3, age);
+                preparedStatement.executeUpdate();
+                connection.commit();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+
+        } catch (SQLException e) {
+            connection.rollback();
+        }
 
     }
 
-    public void removeUserById(long id) {
-        String sql = "DELETE FROM usertable WHERE id = ?";
-        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-            preparedStatement.setLong(1, id);
-            preparedStatement.execute();
-        } catch (SQLException e) {
-            e.printStackTrace();
+    public void removeUserById(long id) throws SQLException {
+        try (connection) {
+            connection.setAutoCommit(false);
+            String sql = "DELETE FROM usertable WHERE id = ?";
+            try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+                preparedStatement.setLong(1, id);
+                preparedStatement.execute();
+                connection.commit();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }catch (SQLException e){
+            connection.rollback();
         }
-
     }
 
     public List<User> getAllUsers() {
@@ -84,7 +96,7 @@ public class UserDaoJDBCImpl implements UserDao {
         } catch (SQLException e) {
             e.printStackTrace();
 
-            }
+        }
         return usersList;
     }
 
