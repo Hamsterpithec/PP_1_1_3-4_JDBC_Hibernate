@@ -20,13 +20,13 @@ public class UserServiceImpl implements UserService {
         userDao.dropUsersTable();
     }
 
-    public void saveUser(String name, String lastName, byte age) {
+    public void saveUser(String name, String lastName, byte age) throws SQLException {
         userDao.saveUser(name, lastName, age);
         System.out.println("User с именем — " + name + " добавлен в базу данных");
 
     }
 
-    public void removeUserById(long id) {
+    public void removeUserById(long id) throws SQLException {
         userDao.removeUserById(id);
 
     }
