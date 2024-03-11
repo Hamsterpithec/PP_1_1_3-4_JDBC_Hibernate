@@ -54,6 +54,7 @@ public class UserDaoJDBCImpl implements UserDao {
                 connection.rollback();
             }finally {
             connection.setAutoCommit(true);
+            System.out.println("User с именем — " + name + " добавлен в базу данных");
         }
 
 
