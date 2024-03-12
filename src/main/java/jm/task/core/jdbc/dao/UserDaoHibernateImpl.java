@@ -2,12 +2,11 @@ package jm.task.core.jdbc.dao;
 
 import jm.task.core.jdbc.model.User;
 import jm.task.core.jdbc.util.Util;
+import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
-
 import java.util.List;
-
 
 
 public class UserDaoHibernateImpl implements UserDao {
@@ -19,27 +18,34 @@ public class UserDaoHibernateImpl implements UserDao {
 
     @Override
     public void createUsersTable() {
-        Session session = Util.getSessionFactory().openSession();
-        Transaction transaction = session.beginTransaction();
+        try (Session session = Util.getSessionFactory().openSession()) {
+            Transaction transaction = session.beginTransaction();
 
-        session.createSQLQuery("CREATE TABLE IF NOT EXISTS usertable " +
-                "(id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY, " +
-                "name VARCHAR(100) NOT NULL, lastName VARCHAR(100) NOT NULL, " +
-                "age LONG NOT NULL)").executeUpdate();
+            session.createSQLQuery("CREATE TABLE IF NOT EXISTS usertable " +
+                    "(id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY, " +
+                    "name VARCHAR(100) NOT NULL, lastName VARCHAR(100) NOT NULL, " +
+                    "age LONG NOT NULL)").executeUpdate();
 
-        transaction.commit();
-        session.close();
+            transaction.commit();
+            session.close();
+        } catch (HibernateException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     public void dropUsersTable() {
-        Session session = Util.getSessionFactory().openSession();
-        Transaction transaction = session.beginTransaction();
+        try (Session session = Util.getSessionFactory().openSession()) {
 
-        session.createSQLQuery("DROP TABLE IF EXISTS usertable").executeUpdate();
+            Transaction transaction = session.beginTransaction();
 
-        transaction.commit();
-        session.close();
+            session.createSQLQuery("DROP TABLE IF EXISTS usertable").executeUpdate();
+
+            transaction.commit();
+            session.close();
+        } catch (HibernateException e) {
+            e.printStackTrace();
+        }
 
     }
 
@@ -48,20 +54,15 @@ public class UserDaoHibernateImpl implements UserDao {
         Transaction transaction = null;
         try (Session session = Util.getSessionFactory().openSession()) {
             transaction = session.beginTransaction();
-            User user = new User();
-            user.setName(name);
-            user.setLastName(lastName);
-            user.setAge(age);
+            User user = new User(name, lastName, age);
             session.save(user);
             transaction.commit();
             session.close();
-
         } catch (Exception e) {
             if (transaction != null) {
                 transaction.rollback();
             }
             e.printStackTrace();
-
         }
         System.out.println("User с именем — " + name + " добавлен в базу данных");
     }
@@ -74,6 +75,7 @@ public class UserDaoHibernateImpl implements UserDao {
             User user = session.getReference(User.class, id);
             session.remove(user);
             transaction.commit();
+            session.close();
         } catch (Exception e) {
             if (transaction != null) {
                 transaction.rollback();
@@ -92,10 +94,13 @@ public class UserDaoHibernateImpl implements UserDao {
 
     @Override
     public void cleanUsersTable() {
-        Session session = Util.getSessionFactory().openSession();
-        Transaction transaction = session.beginTransaction();
-        session.createQuery("DELETE FROM User").executeUpdate();
-        transaction.commit();
-
+        try (Session session = Util.getSessionFactory().openSession()) {
+            Transaction transaction = session.beginTransaction();
+            session.createQuery("DELETE FROM User").executeUpdate();
+            transaction.commit();
+            session.close();
+        } catch (HibernateException e) {
+            e.printStackTrace();
+        }
     }
 }
