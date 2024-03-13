@@ -21,10 +21,7 @@ public class UserDaoHibernateImpl implements UserDao {
         try (Session session = Util.getSessionFactory().openSession()) {
             Transaction transaction = session.beginTransaction();
 
-            session.createSQLQuery("CREATE TABLE IF NOT EXISTS usertable " +
-                    "(id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY, " +
-                    "name VARCHAR(100) NOT NULL, lastName VARCHAR(100) NOT NULL, " +
-                    "age LONG NOT NULL)").executeUpdate();
+            session.createSQLQuery("CREATE TABLE IF NOT EXISTS usertable " + "(id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY, " + "name VARCHAR(100) NOT NULL, lastName VARCHAR(100) NOT NULL, " + "age LONG NOT NULL)").executeUpdate();
 
             transaction.commit();
             session.close();
@@ -54,8 +51,7 @@ public class UserDaoHibernateImpl implements UserDao {
         Transaction transaction = null;
         try (Session session = Util.getSessionFactory().openSession()) {
             transaction = session.beginTransaction();
-            User user = new User(name, lastName, age);
-            session.save(user);
+            session.createSQLQuery("INSERT INTO usertable (name, lastname, age)").executeUpdate();
             transaction.commit();
             session.close();
         } catch (Exception e) {
@@ -72,8 +68,10 @@ public class UserDaoHibernateImpl implements UserDao {
         Transaction transaction = null;
         try (Session session = Util.getSessionFactory().openSession()) {
             transaction = session.beginTransaction();
-            User user = session.getReference(User.class, id);
-            session.remove(user);
+            User user = new User();
+            session.createSQLQuery("DELETE FROM usertable where id = :id")
+                    .setParameter("id", user.getId())
+                    .executeUpdate();
             transaction.commit();
             session.close();
         } catch (Exception e) {

@@ -14,6 +14,7 @@ import java.sql.SQLException;
 import java.util.Properties;
 
 public class Util {
+    private static SessionFactory sessionFactory = null;
     private static final String USERNAME = "root";
     private static final String URL = "jdbc:mysql://localhost:3306/pp_1_1_1_4db";
     private static final String PASSWORD = "Admin_1337";
@@ -32,7 +33,6 @@ public class Util {
         return connection;
     }
 
-    private static SessionFactory sessionFactory;
 
     public static SessionFactory getSessionFactory() {
         if (sessionFactory == null) {
