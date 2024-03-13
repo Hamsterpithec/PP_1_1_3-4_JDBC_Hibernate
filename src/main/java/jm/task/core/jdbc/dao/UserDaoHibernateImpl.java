@@ -25,7 +25,7 @@ public class UserDaoHibernateImpl implements UserDao {
         try (Session session = sessionFactory.openSession()) {
             Transaction transaction = session.beginTransaction();
 
-            session.createSQLQuery("CREATE TABLE IF NOT EXISTS User "
+            session.createSQLQuery("CREATE TABLE User"
                             + "(id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY, "
                             + "name VARCHAR(100) NOT NULL, lastName VARCHAR(100) NOT NULL, "
                             + "age LONG NOT NULL)")
@@ -45,7 +45,7 @@ public class UserDaoHibernateImpl implements UserDao {
 
             Transaction transaction = session.beginTransaction();
 
-            session.createSQLQuery("DROP TABLE IF EXISTS User").executeUpdate();
+            session.createSQLQuery("DROP TABLE User").executeUpdate();
 
             transaction.commit();
             sessionFactory.close();
