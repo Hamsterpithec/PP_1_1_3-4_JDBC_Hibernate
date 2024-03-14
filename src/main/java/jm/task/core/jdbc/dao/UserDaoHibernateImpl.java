@@ -14,7 +14,7 @@ import java.util.List;
 public class UserDaoHibernateImpl implements UserDao {
 
 
-    SessionFactory sessionFactory = Util.getSessionFactory();
+   private final SessionFactory sessionFactory = Util.getSessionFactory();
 
     public UserDaoHibernateImpl() {
 
@@ -92,7 +92,7 @@ public class UserDaoHibernateImpl implements UserDao {
     @Override
     public List<User> getAllUsers() {
         try (Session session = sessionFactory.openSession()) {
-            return session.createQuery("SELECT a FROM User a", User.class).getResultList();
+            return session.createQuery("FROM User", User.class).list();
         }
 
     }
@@ -101,7 +101,7 @@ public class UserDaoHibernateImpl implements UserDao {
     public void cleanUsersTable() {
         try (Session session = sessionFactory.openSession()) {
             Transaction transaction = session.beginTransaction();
-            session.createQuery("DELETE FROM User u").executeUpdate();
+            session.createQuery("DELETE User").executeUpdate();
             transaction.commit();
         } catch (HibernateException e) {
             e.printStackTrace();
